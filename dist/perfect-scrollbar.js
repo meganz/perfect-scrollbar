@@ -112,12 +112,14 @@
 
   var prototypeAccessors = { isEmpty: { configurable: true } };
 
+  EventElement.eventListenerOptions = Object.assign({ passive: false }, window.evPsOptions);
+
   EventElement.prototype.bind = function bind (eventName, handler) {
     if (typeof this.handlers[eventName] === 'undefined') {
       this.handlers[eventName] = [];
     }
     this.handlers[eventName].push(handler);
-    this.element.addEventListener(eventName, handler, false);
+    this.element.addEventListener(eventName, handler, EventElement.eventListenerOptions);
   };
 
   EventElement.prototype.unbind = function unbind (eventName, target) {
@@ -127,7 +129,7 @@
       if (target && handler !== target) {
         return true;
       }
-      this$1.element.removeEventListener(eventName, handler, false);
+      this$1.element.removeEventListener(eventName, handler, EventElement.eventListenerOptions);
       return false;
     });
   };
@@ -189,6 +191,14 @@
     ee.bind(eventName, onceHandler);
   };
 
+  EventManager.prototype.preventDefault = function(ev, stop) {
+      if (stop !== false) {
+        ev.stopPropagation();
+      }
+      if (!EventElement.eventListenerOptions.passive) {
+          ev.preventDefault();
+      }
+  }
   function createEvent(name) {
     if (typeof window.CustomEvent === 'function') {
       return new CustomEvent(name);
@@ -486,6 +496,9 @@
 
     i.event.bind(i.scrollbarY, 'mousedown', function (e) { return e.stopPropagation(); });
     i.event.bind(i.scrollbarYRail, 'mousedown', function (e) {
+      if (element.classList.contains("ps-disabled") ) {
+          return;
+      }
       var positionTop =
         e.pageY -
         window.pageYOffset -
@@ -500,6 +513,9 @@
 
     i.event.bind(i.scrollbarX, 'mousedown', function (e) { return e.stopPropagation(); });
     i.event.bind(i.scrollbarXRail, 'mousedown', function (e) {
+      if (element.classList.contains("ps-disabled") ) {
+          return;
+      }
       var positionLeft =
         e.pageX -
         window.pageXOffset -
@@ -567,7 +583,7 @@
 
       e.stopPropagation();
       if (e.type.startsWith('touch') && e.changedTouches.length > 1) {
-        e.preventDefault();
+        i.event.preventDefault(e, false);
       }
     }
 
@@ -578,6 +594,9 @@
     }
 
     function bindMoves(e, touchMode) {
+      if (element.classList.contains("ps-disabled") ) {
+        return;
+      }
       startingScrollTop = element[scrollTop];
       if (touchMode && e.touches) {
         e[pageY] = e.touches[0].pageY;
@@ -589,7 +608,7 @@
       if (!touchMode) {
         i.event.bind(i.ownerDocument, 'mousemove', mouseMoveHandler);
         i.event.once(i.ownerDocument, 'mouseup', mouseUpHandler);
-        e.preventDefault();
+        i.event.preventDefault(e, false);
       } else {
         i.event.bind(i.ownerDocument, 'touchmove', mouseMoveHandler);
       }
@@ -643,6 +662,9 @@
     }
 
     i.event.bind(i.ownerDocument, 'keydown', function (e) {
+      if (element.classList.contains("ps-disabled") ) {
+        return;
+      }
       if (
         (e.isDefaultPrevented && e.isDefaultPrevented()) ||
         e.defaultPrevented
@@ -654,19 +676,22 @@
         return;
       }
 
-      var activeElement = document.activeElement
-        ? document.activeElement
-        : i.ownerDocument.activeElement;
+      const _getActiveElement = tryCatch(function(node, tryDoc) {
+          const docAE = tryDoc !== false && tryCatch(() => document.activeElement)();
+          return tryDoc && docAE || node && node.activeElement || docAE || !1;
+      });
+
+      var activeElement = dom.getActiveElement(i.ownerDocument, true);
       if (activeElement) {
         if (activeElement.tagName === 'IFRAME') {
-          activeElement = activeElement.contentDocument.activeElement;
+          activeElement = dom.getActiveElement(activeElement.contentDocument, false);
         } else {
           // go deeper if element is a webcomponent
           while (activeElement.shadowRoot) {
-            activeElement = activeElement.shadowRoot.activeElement;
+            activeElement = dom.getActiveElement(activeElement.shadowRoot, false) || !1;
           }
         }
-        if (isEditable(activeElement)) {
+        if (activeElement && _.isEditable(activeElement)) {
           return;
         }
       }
@@ -746,7 +771,7 @@
       updateGeometry(i);
 
       if (shouldPreventDefault(deltaX, deltaY)) {
-        e.preventDefault();
+        i.event.preventDefault(e, false);
       }
     });
   }
@@ -855,6 +880,9 @@
     }
 
     function mousewheelHandler(e) {
+      if (element.classList.contains("ps-disabled") ) {
+        return;
+      }
       var ref = getDeltaFromEvent(e);
       var deltaX = ref[0];
       var deltaY = ref[1];
@@ -893,8 +921,7 @@
 
       shouldPrevent = shouldPrevent || shouldPreventDefault(deltaX, deltaY);
       if (shouldPrevent && !e.ctrlKey) {
-        e.stopPropagation();
-        e.preventDefault();
+        i.event.preventDefault(e);
       }
     }
 
@@ -982,6 +1009,9 @@
 
     function touchStart(e) {
       if (!shouldHandle(e)) {
+        if (element.classList.contains("ps-disabled") ) {
+            return;
+        }
         return;
       }
 
@@ -1068,7 +1098,7 @@
         }
 
         if (shouldPrevent(differenceX, differenceY)) {
-          e.preventDefault();
+          i.event.preventDefault(e);
         }
       }
     }
@@ -1306,6 +1336,9 @@
   };
 
   PerfectScrollbar.prototype.onScroll = function onScroll (e) {
+    if (this.element.classList.contains("ps-disabled") ) {
+        return false;
+    }
     if (!this.isAlive) {
       return;
     }
