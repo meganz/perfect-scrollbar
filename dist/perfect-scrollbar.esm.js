@@ -1,6 +1,6 @@
 /*!
- * perfect-scrollbar v1.5.3
- * Copyright 2021 Hyunje Jun, MDBootstrap and Contributors
+ * perfect-scrollbar v1.5.5.MEGA
+ * Copyright 2023 Hyunje Jun, MDBootstrap and Contributors
  * Licensed under MIT
  */
 
@@ -111,17 +111,17 @@ EventElement.prototype.bind = function bind (eventName, handler) {
     this.handlers[eventName] = [];
   }
   this.handlers[eventName].push(handler);
-  this.element.addEventListener(eventName, handler, false);
+  this.element.addEventListener(eventName, handler, EventElement.eventListenerOptions);
 };
 
 EventElement.prototype.unbind = function unbind (eventName, target) {
-    var this$1 = this;
+    var this$1$1 = this;
 
   this.handlers[eventName] = this.handlers[eventName].filter(function (handler) {
     if (target && handler !== target) {
       return true;
     }
-    this$1.element.removeEventListener(eventName, handler, false);
+    this$1$1.element.removeEventListener(eventName, handler, EventElement.eventListenerOptions);
     return false;
   });
 };
@@ -133,14 +133,16 @@ EventElement.prototype.unbindAll = function unbindAll () {
 };
 
 prototypeAccessors.isEmpty.get = function () {
-    var this$1 = this;
+    var this$1$1 = this;
 
   return Object.keys(this.handlers).every(
-    function (key) { return this$1.handlers[key].length === 0; }
+    function (key) { return this$1$1.handlers[key].length === 0; }
   );
 };
 
 Object.defineProperties( EventElement.prototype, prototypeAccessors );
+
+EventElement.eventListenerOptions = Object.assign({ passive: false }, window.evPsOptions);
 
 var EventManager = function EventManager() {
   this.eventElements = [];
@@ -181,6 +183,15 @@ EventManager.prototype.once = function once (element, eventName, handler) {
     handler(evt);
   };
   ee.bind(eventName, onceHandler);
+};
+
+EventManager.prototype.preventDefault = function preventDefault (ev, stop) {
+    if (stop !== false) {
+      ev.stopPropagation();
+    }
+    if (!EventElement.eventListenerOptions.passive) {
+        ev.preventDefault();
+    }
 };
 
 function createEvent(name) {
@@ -480,6 +491,9 @@ function clickRail(i) {
 
   i.event.bind(i.scrollbarY, 'mousedown', function (e) { return e.stopPropagation(); });
   i.event.bind(i.scrollbarYRail, 'mousedown', function (e) {
+    if (element.classList.contains("ps-disabled") ) {
+      return;
+    }
     var positionTop =
       e.pageY -
       window.pageYOffset -
@@ -494,6 +508,9 @@ function clickRail(i) {
 
   i.event.bind(i.scrollbarX, 'mousedown', function (e) { return e.stopPropagation(); });
   i.event.bind(i.scrollbarXRail, 'mousedown', function (e) {
+    if (element.classList.contains("ps-disabled") ) {
+      return;
+    }
     var positionLeft =
       e.pageX -
       window.pageXOffset -
@@ -561,7 +578,7 @@ function bindMouseScrollHandler(
 
     e.stopPropagation();
     if (e.type.startsWith('touch') && e.changedTouches.length > 1) {
-      e.preventDefault();
+      i.event.preventDefault(e, false);
     }
   }
 
@@ -572,6 +589,9 @@ function bindMouseScrollHandler(
   }
 
   function bindMoves(e, touchMode) {
+    if (element.classList.contains("ps-disabled") ) {
+      return;
+    }
     startingScrollTop = element[scrollTop];
     if (touchMode && e.touches) {
       e[pageY] = e.touches[0].pageY;
@@ -583,7 +603,7 @@ function bindMouseScrollHandler(
     if (!touchMode) {
       i.event.bind(i.ownerDocument, 'mousemove', mouseMoveHandler);
       i.event.once(i.ownerDocument, 'mouseup', mouseUpHandler);
-      e.preventDefault();
+      i.event.preventDefault(e, false);
     } else {
       i.event.bind(i.ownerDocument, 'touchmove', mouseMoveHandler);
     }
@@ -637,6 +657,9 @@ function keyboard(i) {
   }
 
   i.event.bind(i.ownerDocument, 'keydown', function (e) {
+    if (element.classList.contains("ps-disabled") ) {
+      return;
+    }
     if (
       (e.isDefaultPrevented && e.isDefaultPrevented()) ||
       e.defaultPrevented
@@ -648,19 +671,22 @@ function keyboard(i) {
       return;
     }
 
-    var activeElement = document.activeElement
-      ? document.activeElement
-      : i.ownerDocument.activeElement;
+    var _getActiveElement = tryCatch(function(node, tryDoc) {
+        var docAE = tryDoc !== false && tryCatch(function () { return document.activeElement; })();
+        return tryDoc && docAE || node && node.activeElement || docAE || !1;
+    });
+
+    var activeElement = _getActiveElement(i.ownerDocument, true);
     if (activeElement) {
       if (activeElement.tagName === 'IFRAME') {
-        activeElement = activeElement.contentDocument.activeElement;
+        activeElement = _getActiveElement(activeElement.contentDocument, false);
       } else {
         // go deeper if element is a webcomponent
         while (activeElement.shadowRoot) {
-          activeElement = activeElement.shadowRoot.activeElement;
+          activeElement = _getActiveElement(activeElement.shadowRoot, false) || !1;
         }
       }
-      if (isEditable(activeElement)) {
+      if (activeElement && isEditable(activeElement)) {
         return;
       }
     }
@@ -740,7 +766,7 @@ function keyboard(i) {
     updateGeometry(i);
 
     if (shouldPreventDefault(deltaX, deltaY)) {
-      e.preventDefault();
+      i.event.preventDefault(e, false);
     }
   });
 }
@@ -849,6 +875,9 @@ function wheel(i) {
   }
 
   function mousewheelHandler(e) {
+    if (element.classList.contains("ps-disabled") ) {
+      return;
+    }
     var ref = getDeltaFromEvent(e);
     var deltaX = ref[0];
     var deltaY = ref[1];
@@ -887,8 +916,7 @@ function wheel(i) {
 
     shouldPrevent = shouldPrevent || shouldPreventDefault(deltaX, deltaY);
     if (shouldPrevent && !e.ctrlKey) {
-      e.stopPropagation();
-      e.preventDefault();
+      i.event.preventDefault(e);
     }
   }
 
@@ -975,6 +1003,9 @@ function touch(i) {
   }
 
   function touchStart(e) {
+    if (element.classList.contains("ps-disabled") ) {
+      return;
+    }
     if (!shouldHandle(e)) {
       return;
     }
@@ -1062,7 +1093,7 @@ function touch(i) {
       }
 
       if (shouldPrevent(differenceX, differenceY)) {
-        e.preventDefault();
+        i.event.preventDefault(e, false);
       }
     }
   }
@@ -1139,7 +1170,7 @@ var handlers = {
 };
 
 var PerfectScrollbar = function PerfectScrollbar(element, userSettings) {
-  var this$1 = this;
+  var this$1$1 = this;
   if ( userSettings === void 0 ) userSettings = {};
 
   if (typeof element === 'string') {
@@ -1258,11 +1289,11 @@ var PerfectScrollbar = function PerfectScrollbar(element, userSettings) {
 
   this.isAlive = true;
 
-  this.settings.handlers.forEach(function (handlerName) { return handlers[handlerName](this$1); });
+  this.settings.handlers.forEach(function (handlerName) { return handlers[handlerName](this$1$1); });
 
   this.lastScrollTop = Math.floor(element.scrollTop); // for onScroll only
   this.lastScrollLeft = element.scrollLeft; // for onScroll only
-  this.event.bind(this.element, 'scroll', function (e) { return this$1.onScroll(e); });
+  this.event.bind(this.element, 'scroll', function (e) { return this$1$1.onScroll(e); });
   updateGeometry(this);
 };
 
@@ -1300,6 +1331,9 @@ PerfectScrollbar.prototype.update = function update () {
 };
 
 PerfectScrollbar.prototype.onScroll = function onScroll (e) {
+  if (element.classList.contains("ps-disabled") ) {
+    return;
+  }
   if (!this.isAlive) {
     return;
   }
@@ -1345,5 +1379,4 @@ PerfectScrollbar.prototype.removePsClasses = function removePsClasses () {
     .join(' ');
 };
 
-export default PerfectScrollbar;
-//# sourceMappingURL=perfect-scrollbar.esm.js.map
+export { PerfectScrollbar as default };

@@ -39,6 +39,9 @@ export default function(i) {
   }
 
   i.event.bind(i.ownerDocument, 'keydown', e => {
+    if (element.classList.contains("ps-disabled") ) {
+      return;
+    }
     if (
       (e.isDefaultPrevented && e.isDefaultPrevented()) ||
       e.defaultPrevented
@@ -50,19 +53,22 @@ export default function(i) {
       return;
     }
 
-    let activeElement = document.activeElement
-      ? document.activeElement
-      : i.ownerDocument.activeElement;
+    const _getActiveElement = tryCatch(function(node, tryDoc) {
+        const docAE = tryDoc !== false && tryCatch(() => document.activeElement)();
+        return tryDoc && docAE || node && node.activeElement || docAE || !1;
+    });
+
+    var activeElement = _getActiveElement(i.ownerDocument, true);
     if (activeElement) {
       if (activeElement.tagName === 'IFRAME') {
-        activeElement = activeElement.contentDocument.activeElement;
+        activeElement = _getActiveElement(activeElement.contentDocument, false);
       } else {
         // go deeper if element is a webcomponent
         while (activeElement.shadowRoot) {
-          activeElement = activeElement.shadowRoot.activeElement;
+          activeElement = _getActiveElement(activeElement.shadowRoot, false) || !1;
         }
       }
-      if (isEditable(activeElement)) {
+      if (activeElement && isEditable(activeElement)) {
         return;
       }
     }
@@ -142,7 +148,7 @@ export default function(i) {
     updateGeometry(i);
 
     if (shouldPreventDefault(deltaX, deltaY)) {
-      e.preventDefault();
+      i.event.preventDefault(e, false);
     }
   });
 }

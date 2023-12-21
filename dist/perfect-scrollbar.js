@@ -1,14 +1,14 @@
 /*!
- * perfect-scrollbar v1.5.3
- * Copyright 2021 Hyunje Jun, MDBootstrap and Contributors
+ * perfect-scrollbar v1.5.5.MEGA
+ * Copyright 2023 Hyunje Jun, MDBootstrap and Contributors
  * Licensed under MIT
  */
 
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
-  (global = global || self, global.PerfectScrollbar = factory());
-}(this, (function () { 'use strict';
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.PerfectScrollbar = factory());
+})(this, (function () { 'use strict';
 
   function get(element) {
     return getComputedStyle(element);
@@ -112,8 +112,6 @@
 
   var prototypeAccessors = { isEmpty: { configurable: true } };
 
-  EventElement.eventListenerOptions = Object.assign({ passive: false }, window.evPsOptions);
-
   EventElement.prototype.bind = function bind (eventName, handler) {
     if (typeof this.handlers[eventName] === 'undefined') {
       this.handlers[eventName] = [];
@@ -123,13 +121,13 @@
   };
 
   EventElement.prototype.unbind = function unbind (eventName, target) {
-      var this$1 = this;
+      var this$1$1 = this;
 
     this.handlers[eventName] = this.handlers[eventName].filter(function (handler) {
       if (target && handler !== target) {
         return true;
       }
-      this$1.element.removeEventListener(eventName, handler, EventElement.eventListenerOptions);
+      this$1$1.element.removeEventListener(eventName, handler, EventElement.eventListenerOptions);
       return false;
     });
   };
@@ -141,14 +139,16 @@
   };
 
   prototypeAccessors.isEmpty.get = function () {
-      var this$1 = this;
+      var this$1$1 = this;
 
     return Object.keys(this.handlers).every(
-      function (key) { return this$1.handlers[key].length === 0; }
+      function (key) { return this$1$1.handlers[key].length === 0; }
     );
   };
 
   Object.defineProperties( EventElement.prototype, prototypeAccessors );
+
+  EventElement.eventListenerOptions = Object.assign({ passive: false }, window.evPsOptions);
 
   var EventManager = function EventManager() {
     this.eventElements = [];
@@ -191,14 +191,15 @@
     ee.bind(eventName, onceHandler);
   };
 
-  EventManager.prototype.preventDefault = function(ev, stop) {
+  EventManager.prototype.preventDefault = function preventDefault (ev, stop) {
       if (stop !== false) {
         ev.stopPropagation();
       }
       if (!EventElement.eventListenerOptions.passive) {
           ev.preventDefault();
       }
-  }
+  };
+
   function createEvent(name) {
     if (typeof window.CustomEvent === 'function') {
       return new CustomEvent(name);
@@ -497,7 +498,7 @@
     i.event.bind(i.scrollbarY, 'mousedown', function (e) { return e.stopPropagation(); });
     i.event.bind(i.scrollbarYRail, 'mousedown', function (e) {
       if (element.classList.contains("ps-disabled") ) {
-          return;
+        return;
       }
       var positionTop =
         e.pageY -
@@ -514,7 +515,7 @@
     i.event.bind(i.scrollbarX, 'mousedown', function (e) { return e.stopPropagation(); });
     i.event.bind(i.scrollbarXRail, 'mousedown', function (e) {
       if (element.classList.contains("ps-disabled") ) {
-          return;
+        return;
       }
       var positionLeft =
         e.pageX -
@@ -676,22 +677,22 @@
         return;
       }
 
-      const _getActiveElement = tryCatch(function(node, tryDoc) {
-          const docAE = tryDoc !== false && tryCatch(() => document.activeElement)();
+      var _getActiveElement = tryCatch(function(node, tryDoc) {
+          var docAE = tryDoc !== false && tryCatch(function () { return document.activeElement; })();
           return tryDoc && docAE || node && node.activeElement || docAE || !1;
       });
 
-      var activeElement = dom.getActiveElement(i.ownerDocument, true);
+      var activeElement = _getActiveElement(i.ownerDocument, true);
       if (activeElement) {
         if (activeElement.tagName === 'IFRAME') {
-          activeElement = dom.getActiveElement(activeElement.contentDocument, false);
+          activeElement = _getActiveElement(activeElement.contentDocument, false);
         } else {
           // go deeper if element is a webcomponent
           while (activeElement.shadowRoot) {
-            activeElement = dom.getActiveElement(activeElement.shadowRoot, false) || !1;
+            activeElement = _getActiveElement(activeElement.shadowRoot, false) || !1;
           }
         }
-        if (activeElement && _.isEditable(activeElement)) {
+        if (activeElement && isEditable(activeElement)) {
           return;
         }
       }
@@ -1008,10 +1009,10 @@
     }
 
     function touchStart(e) {
+      if (element.classList.contains("ps-disabled") ) {
+        return;
+      }
       if (!shouldHandle(e)) {
-        if (element.classList.contains("ps-disabled") ) {
-            return;
-        }
         return;
       }
 
@@ -1098,7 +1099,7 @@
         }
 
         if (shouldPrevent(differenceX, differenceY)) {
-          i.event.preventDefault(e);
+          i.event.preventDefault(e, false);
         }
       }
     }
@@ -1175,7 +1176,7 @@
   };
 
   var PerfectScrollbar = function PerfectScrollbar(element, userSettings) {
-    var this$1 = this;
+    var this$1$1 = this;
     if ( userSettings === void 0 ) userSettings = {};
 
     if (typeof element === 'string') {
@@ -1294,11 +1295,11 @@
 
     this.isAlive = true;
 
-    this.settings.handlers.forEach(function (handlerName) { return handlers[handlerName](this$1); });
+    this.settings.handlers.forEach(function (handlerName) { return handlers[handlerName](this$1$1); });
 
     this.lastScrollTop = Math.floor(element.scrollTop); // for onScroll only
     this.lastScrollLeft = element.scrollLeft; // for onScroll only
-    this.event.bind(this.element, 'scroll', function (e) { return this$1.onScroll(e); });
+    this.event.bind(this.element, 'scroll', function (e) { return this$1$1.onScroll(e); });
     updateGeometry(this);
   };
 
@@ -1336,8 +1337,8 @@
   };
 
   PerfectScrollbar.prototype.onScroll = function onScroll (e) {
-    if (this.element.classList.contains("ps-disabled") ) {
-        return false;
+    if (element.classList.contains("ps-disabled") ) {
+      return;
     }
     if (!this.isAlive) {
       return;
@@ -1386,5 +1387,4 @@
 
   return PerfectScrollbar;
 
-})));
-//# sourceMappingURL=perfect-scrollbar.js.map
+}));

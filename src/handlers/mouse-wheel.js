@@ -109,6 +109,9 @@ export default function(i) {
   }
 
   function mousewheelHandler(e) {
+    if (element.classList.contains("ps-disabled") ) {
+      return;
+    }
     const [deltaX, deltaY] = getDeltaFromEvent(e);
 
     if (shouldBeConsumedByChild(e.target, deltaX, deltaY)) {
@@ -145,8 +148,7 @@ export default function(i) {
 
     shouldPrevent = shouldPrevent || shouldPreventDefault(deltaX, deltaY);
     if (shouldPrevent && !e.ctrlKey) {
-      e.stopPropagation();
-      e.preventDefault();
+      i.event.preventDefault(e);
     }
   }
 

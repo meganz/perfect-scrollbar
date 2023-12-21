@@ -79,6 +79,9 @@ export default function(i) {
   }
 
   function touchStart(e) {
+    if (element.classList.contains("ps-disabled") ) {
+      return;
+    }
     if (!shouldHandle(e)) {
       return;
     }
@@ -166,7 +169,7 @@ export default function(i) {
       }
 
       if (shouldPrevent(differenceX, differenceY)) {
-        e.preventDefault();
+        i.event.preventDefault(e, false);
       }
     }
   }
