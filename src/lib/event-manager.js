@@ -9,7 +9,11 @@ class EventElement {
       this.handlers[eventName] = [];
     }
     this.handlers[eventName].push(handler);
-    this.element.addEventListener(eventName, handler, EventElement.eventListenerOptions);
+    this.element.addEventListener(
+      eventName,
+      handler,
+      EventElement.eventListenerOptions
+    );
   }
 
   unbind(eventName, target) {
@@ -17,7 +21,11 @@ class EventElement {
       if (target && handler !== target) {
         return true;
       }
-      this.element.removeEventListener(eventName, handler, EventElement.eventListenerOptions);
+      this.element.removeEventListener(
+        eventName,
+        handler,
+        EventElement.eventListenerOptions
+      );
       return false;
     });
   }
@@ -35,7 +43,10 @@ class EventElement {
   }
 }
 
-EventElement.eventListenerOptions = Object.assign({ passive: false }, window.evPsOptions);
+EventElement.eventListenerOptions = Object.assign(
+  { passive: false },
+  window.evPsOptions
+);
 
 export default class EventManager {
   constructor() {
@@ -80,11 +91,11 @@ export default class EventManager {
   }
 
   preventDefault(ev, stop) {
-      if (stop !== false) {
-        ev.stopPropagation();
-      }
-      if (!EventElement.eventListenerOptions.passive) {
-          ev.preventDefault();
-      }
+    if (stop !== false) {
+      ev.stopPropagation();
+    }
+    if (!EventElement.eventListenerOptions.passive) {
+      ev.preventDefault();
+    }
   }
 }

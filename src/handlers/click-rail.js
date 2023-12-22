@@ -5,7 +5,7 @@ export default function(i) {
 
   i.event.bind(i.scrollbarY, 'mousedown', e => e.stopPropagation());
   i.event.bind(i.scrollbarYRail, 'mousedown', e => {
-    if (element.classList.contains("ps-disabled") ) {
+    if (element.classList.contains('ps-disabled')) {
       return;
     }
     const positionTop =
@@ -22,7 +22,7 @@ export default function(i) {
 
   i.event.bind(i.scrollbarX, 'mousedown', e => e.stopPropagation());
   i.event.bind(i.scrollbarXRail, 'mousedown', e => {
-    if (element.classList.contains("ps-disabled") ) {
+    if (element.classList.contains('ps-disabled')) {
       return;
     }
     const positionLeft =

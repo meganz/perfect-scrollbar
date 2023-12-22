@@ -39,7 +39,7 @@ export default function(i) {
   }
 
   i.event.bind(i.ownerDocument, 'keydown', e => {
-    if (element.classList.contains("ps-disabled") ) {
+    if (element.classList.contains('ps-disabled')) {
       return;
     }
     if (
@@ -54,8 +54,9 @@ export default function(i) {
     }
 
     const _getActiveElement = tryCatch(function(node, tryDoc) {
-        const docAE = tryDoc !== false && tryCatch(() => document.activeElement)();
-        return tryDoc && docAE || node && node.activeElement || docAE || !1;
+      const docAE =
+        tryDoc !== false && tryCatch(() => document.activeElement)();
+      return (tryDoc && docAE) || (node && node.activeElement) || docAE || !1;
     });
 
     var activeElement = _getActiveElement(i.ownerDocument, true);
@@ -65,7 +66,8 @@ export default function(i) {
       } else {
         // go deeper if element is a webcomponent
         while (activeElement.shadowRoot) {
-          activeElement = _getActiveElement(activeElement.shadowRoot, false) || !1;
+          activeElement =
+            _getActiveElement(activeElement.shadowRoot, false) || !1;
         }
       }
       if (activeElement && isEditable(activeElement)) {

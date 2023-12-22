@@ -109,7 +109,7 @@ export default function(i) {
   }
 
   function mousewheelHandler(e) {
-    if (element.classList.contains("ps-disabled") ) {
+    if (element.classList.contains('ps-disabled')) {
       return;
     }
     const [deltaX, deltaY] = getDeltaFromEvent(e);

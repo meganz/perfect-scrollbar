@@ -79,7 +79,7 @@ export default function(i) {
   }
 
   function touchStart(e) {
-    if (element.classList.contains("ps-disabled") ) {
+    if (element.classList.contains('ps-disabled')) {
       return;
     }
     if (!shouldHandle(e)) {

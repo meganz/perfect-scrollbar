@@ -74,7 +74,7 @@ function bindMouseScrollHandler(
   }
 
   function bindMoves(e, touchMode) {
-    if (element.classList.contains("ps-disabled") ) {
+    if (element.classList.contains('ps-disabled')) {
       return;
     }
     startingScrollTop = element[scrollTop];
