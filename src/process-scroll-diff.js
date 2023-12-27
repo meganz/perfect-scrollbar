@@ -10,7 +10,7 @@ function createEvent(name) {
   }
 }
 
-export default function(
+export default function (
   i,
   axis,
   diff,

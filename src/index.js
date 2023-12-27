@@ -141,23 +141,25 @@ export default class PerfectScrollbar {
         element.scrollLeft <= 0
           ? 'start'
           : element.scrollLeft >= this.contentWidth - this.containerWidth
-          ? 'end'
-          : null,
+            ? 'end'
+            : null,
       y:
         element.scrollTop <= 0
           ? 'start'
           : element.scrollTop >= this.contentHeight - this.containerHeight
-          ? 'end'
-          : null,
+            ? 'end'
+            : null,
     };
 
     this.isAlive = true;
 
-    this.settings.handlers.forEach(handlerName => handlers[handlerName](this));
+    this.settings.handlers.forEach((handlerName) =>
+      handlers[handlerName](this)
+    );
 
     this.lastScrollTop = Math.floor(element.scrollTop); // for onScroll only
     this.lastScrollLeft = element.scrollLeft; // for onScroll only
-    this.event.bind(this.element, 'scroll', e => this.onScroll(e));
+    this.event.bind(this.element, 'scroll', (e) => this.onScroll(e));
     updateGeometry(this);
   }
 
@@ -195,10 +197,7 @@ export default class PerfectScrollbar {
   }
 
   onScroll(e) {
-    if (element.classList.contains('ps-disabled')) {
-      return;
-    }
-    if (!this.isAlive) {
+    if (!this.isAlive || this.element.classList.contains('ps-disabled')) {
       return;
     }
 
@@ -239,7 +238,7 @@ export default class PerfectScrollbar {
   removePsClasses() {
     this.element.className = this.element.className
       .split(' ')
-      .filter(name => !name.match(/^ps([-_].+|)$/))
+      .filter((name) => !name.match(/^ps([-_].+|)$/))
       .join(' ');
   }
 }

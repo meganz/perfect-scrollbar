@@ -3,7 +3,7 @@ import * as DOM from './lib/dom';
 import cls from './lib/class-names';
 import { toInt } from './lib/util';
 
-export default function(i) {
+export default function (i) {
   const element = i.element;
   const roundedScrollTop = Math.floor(element.scrollTop);
   const rect = element.getBoundingClientRect();
@@ -16,14 +16,14 @@ export default function(i) {
 
   if (!element.contains(i.scrollbarXRail)) {
     // clean up and append
-    DOM.queryChildren(element, cls.element.rail('x')).forEach(el =>
+    DOM.queryChildren(element, cls.element.rail('x')).forEach((el) =>
       DOM.remove(el)
     );
     element.appendChild(i.scrollbarXRail);
   }
   if (!element.contains(i.scrollbarYRail)) {
     // clean up and append
-    DOM.queryChildren(element, cls.element.rail('y')).forEach(el =>
+    DOM.queryChildren(element, cls.element.rail('y')).forEach((el) =>
       DOM.remove(el)
     );
     element.appendChild(i.scrollbarYRail);

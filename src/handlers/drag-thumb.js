@@ -7,7 +7,7 @@ import cls, {
 import updateGeometry from '../update-geometry';
 import { toInt } from '../lib/util';
 
-export default function(i) {
+export default function (i) {
   bindMouseScrollHandler(i, [
     'containerWidth',
     'contentWidth',
@@ -98,10 +98,10 @@ function bindMouseScrollHandler(
     e.stopPropagation();
   }
 
-  i.event.bind(i[scrollbarY], 'mousedown', e => {
+  i.event.bind(i[scrollbarY], 'mousedown', (e) => {
     bindMoves(e);
   });
-  i.event.bind(i[scrollbarY], 'touchstart', e => {
+  i.event.bind(i[scrollbarY], 'touchstart', (e) => {
     bindMoves(e, true);
   });
 }

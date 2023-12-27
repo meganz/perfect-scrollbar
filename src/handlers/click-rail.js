@@ -1,10 +1,10 @@
 import updateGeometry from '../update-geometry';
 
-export default function(i) {
+export default function (i) {
   const element = i.element;
 
-  i.event.bind(i.scrollbarY, 'mousedown', e => e.stopPropagation());
-  i.event.bind(i.scrollbarYRail, 'mousedown', e => {
+  i.event.bind(i.scrollbarY, 'mousedown', (e) => e.stopPropagation());
+  i.event.bind(i.scrollbarYRail, 'mousedown', (e) => {
     if (element.classList.contains('ps-disabled')) {
       return;
     }
@@ -20,8 +20,8 @@ export default function(i) {
     e.stopPropagation();
   });
 
-  i.event.bind(i.scrollbarX, 'mousedown', e => e.stopPropagation());
-  i.event.bind(i.scrollbarXRail, 'mousedown', e => {
+  i.event.bind(i.scrollbarX, 'mousedown', (e) => e.stopPropagation());
+  i.event.bind(i.scrollbarXRail, 'mousedown', (e) => {
     if (element.classList.contains('ps-disabled')) {
       return;
     }

@@ -3,7 +3,7 @@ import cls from '../lib/class-names';
 import * as CSS from '../lib/css';
 import { env } from '../lib/util';
 
-export default function(i) {
+export default function (i) {
   if (!env.supportsTouch && !env.supportsIePointer) {
     return;
   }
@@ -176,7 +176,7 @@ export default function(i) {
   function touchEnd() {
     if (i.settings.swipeEasing) {
       clearInterval(easingLoop);
-      easingLoop = setInterval(function() {
+      easingLoop = setInterval(function () {
         if (i.isInitialized) {
           clearInterval(easingLoop);
           return;

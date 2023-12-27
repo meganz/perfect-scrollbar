@@ -2,7 +2,7 @@ import * as DOM from '../lib/dom';
 import updateGeometry from '../update-geometry';
 import { isEditable } from '../lib/util';
 
-export default function(i) {
+export default function (i) {
   const element = i.element;
 
   const elementHovered = () => DOM.matches(element, ':hover');
@@ -38,7 +38,7 @@ export default function(i) {
     return true;
   }
 
-  i.event.bind(i.ownerDocument, 'keydown', e => {
+  i.event.bind(i.ownerDocument, 'keydown', (e) => {
     if (element.classList.contains('ps-disabled')) {
       return;
     }
@@ -53,7 +53,7 @@ export default function(i) {
       return;
     }
 
-    const _getActiveElement = tryCatch(function(node, tryDoc) {
+    const _getActiveElement = tryCatch(function (node, tryDoc) {
       const docAE =
         tryDoc !== false && tryCatch(() => document.activeElement)();
       return (tryDoc && docAE) || (node && node.activeElement) || docAE || !1;

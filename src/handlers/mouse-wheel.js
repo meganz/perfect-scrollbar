@@ -3,7 +3,7 @@ import cls from '../lib/class-names';
 import updateGeometry from '../update-geometry';
 import { env } from '../lib/util';
 
-export default function(i) {
+export default function (i) {
   const element = i.element;
 
   let shouldPrevent = false;
