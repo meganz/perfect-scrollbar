@@ -195,6 +195,9 @@ export default class PerfectScrollbar {
   }
 
   onScroll(e) {
+    if (element.classList.contains('ps-disabled')) {
+      return;
+    }
     if (!this.isAlive) {
       return;
     }

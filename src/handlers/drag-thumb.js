@@ -63,7 +63,7 @@ function bindMouseScrollHandler(
 
     e.stopPropagation();
     if (e.type.startsWith('touch') && e.changedTouches.length > 1) {
-      e.preventDefault();
+      i.event.preventDefault(e, false);
     }
   }
 
@@ -74,6 +74,9 @@ function bindMouseScrollHandler(
   }
 
   function bindMoves(e, touchMode) {
+    if (element.classList.contains('ps-disabled')) {
+      return;
+    }
     startingScrollTop = element[scrollTop];
     if (touchMode && e.touches) {
       e[pageY] = e.touches[0].pageY;
@@ -85,7 +88,7 @@ function bindMouseScrollHandler(
     if (!touchMode) {
       i.event.bind(i.ownerDocument, 'mousemove', mouseMoveHandler);
       i.event.once(i.ownerDocument, 'mouseup', mouseUpHandler);
-      e.preventDefault();
+      i.event.preventDefault(e, false);
     } else {
       i.event.bind(i.ownerDocument, 'touchmove', mouseMoveHandler);
     }

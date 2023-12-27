@@ -9,7 +9,11 @@ class EventElement {
       this.handlers[eventName] = [];
     }
     this.handlers[eventName].push(handler);
-    this.element.addEventListener(eventName, handler, false);
+    this.element.addEventListener(
+      eventName,
+      handler,
+      EventElement.eventListenerOptions
+    );
   }
 
   unbind(eventName, target) {
@@ -17,7 +21,11 @@ class EventElement {
       if (target && handler !== target) {
         return true;
       }
-      this.element.removeEventListener(eventName, handler, false);
+      this.element.removeEventListener(
+        eventName,
+        handler,
+        EventElement.eventListenerOptions
+      );
       return false;
     });
   }
@@ -34,6 +42,11 @@ class EventElement {
     );
   }
 }
+
+EventElement.eventListenerOptions = Object.assign(
+  { passive: false },
+  window.evPsOptions
+);
 
 export default class EventManager {
   constructor() {
@@ -75,5 +88,14 @@ export default class EventManager {
       handler(evt);
     };
     ee.bind(eventName, onceHandler);
+  }
+
+  preventDefault(ev, stop) {
+    if (stop !== false) {
+      ev.stopPropagation();
+    }
+    if (!EventElement.eventListenerOptions.passive) {
+      ev.preventDefault();
+    }
   }
 }
