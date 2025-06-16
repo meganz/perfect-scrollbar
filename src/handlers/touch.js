@@ -50,7 +50,7 @@ export default function (i) {
   let startOffset = {};
   let startTime = 0;
   let speed = {};
-  let easingLoop = null;
+  let easingLoop = 0;
 
   function getTouch(e) {
     if (e.targetTouches) {
@@ -91,11 +91,9 @@ export default function (i) {
     startOffset.pageX = touch.pageX;
     startOffset.pageY = touch.pageY;
 
-    startTime = new Date().getTime();
+    startTime = performance.now();
 
-    if (easingLoop !== null) {
-      clearInterval(easingLoop);
-    }
+    easingLoop++;
   }
 
   function shouldBeConsumedByChild(target, deltaX, deltaY) {
@@ -159,7 +157,7 @@ export default function (i) {
       applyTouchMove(differenceX, differenceY);
       startOffset = currentOffset;
 
-      const currentTime = new Date().getTime();
+      const currentTime = performance.now();
 
       const timeGap = currentTime - startTime;
       if (timeGap > 0) {
@@ -175,25 +173,26 @@ export default function (i) {
   }
   function touchEnd() {
     if (i.settings.swipeEasing) {
-      clearInterval(easingLoop);
-      easingLoop = setInterval(function () {
+      const pid = ++easingLoop;
+      requestAnimationFrame(function raf() {
+        if (pid !== easingLoop) {
+          return;
+        }
+        requestAnimationFrame(raf);
+
         if (i.isInitialized) {
-          clearInterval(easingLoop);
           return;
         }
 
         if (!speed.x && !speed.y) {
-          clearInterval(easingLoop);
           return;
         }
 
         if (Math.abs(speed.x) < 0.01 && Math.abs(speed.y) < 0.01) {
-          clearInterval(easingLoop);
           return;
         }
 
         if (!i.element) {
-          clearInterval(easingLoop);
           return;
         }
 
@@ -201,7 +200,7 @@ export default function (i) {
 
         speed.x *= 0.8;
         speed.y *= 0.8;
-      }, 10);
+      });
     }
   }
 
