@@ -95,7 +95,7 @@ export default class EventManager {
       ev.stopPropagation();
     }
     if (!EventElement.eventListenerOptions.passive) {
-      ev.preventDefault();
+      return ev.cancelable && ev.preventDefault();
     }
   }
 }
